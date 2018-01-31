@@ -13,7 +13,7 @@ tools {
 
 node("master") {
 	stage('Check-out') {
-            checkout([$class: 'GitSCM', branches: [[name: "${params.my_branch}"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
+            checkout([$class: 'GitSCM', branches: [[name: "master"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
 	}
 
     stage('Build') {
@@ -27,7 +27,7 @@ node("master") {
 			junit 'target/surefire-reports/**/*.xml' 
 	}
     stage('Deploy') {
-        build DOCKER
+        
 
     }
 }
