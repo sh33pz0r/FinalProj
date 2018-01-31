@@ -1,4 +1,9 @@
-properties([
+tools { 
+        maven 'Maven 3.3.9' 
+        jdk 'jdk8' 
+    }
+
+	properties([
         disableConcurrentBuilds(),
         parameters([
                 string(defaultValue: '', description: '', name: 'my_branch'),
@@ -13,13 +18,13 @@ node("master") {
 
     stage('Build') {
         try {
-            sh "mkdir service"
+            sh 'mvn -Dmaven.test.failure.ignore=true install' 
 	} catch (exc) {
 	    error "ERROR: Failed to checkout branch - ${params.my_branch}"
 	}
     }
 	stage ('test') {
-	
+			junit 'target/surefire-reports/**/*.xml' 
 	}
     stage('Deploy') {
         build DOCKER
