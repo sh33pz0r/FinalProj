@@ -3,6 +3,7 @@ node("master") {
       stage('Checkout') {
  	 notifySlack()
 	 checkout([$class: 'GitSCM', branches: [[name: "ofir"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
+         sh "echo pwd"
       }
       stage('Build') {
          dir('spring-boot-package-war'){
