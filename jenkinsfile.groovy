@@ -17,17 +17,17 @@ node("master") {
          junit 'spring-boot-package-war/target/surefire-reports/TEST-*.xml' 
       }
       stage('Docker') {
-         dir ('discovery-service') {
-            def dockerimage = docker.build "localhost:5000/discovery-service:${env.version}"
+         dir ('spring-boot-package-war') {
+            def dockerimage = docker.build "localhost:5000/spring-boot-package-war:${env.version}"
             dockerimage.push()
             }
          }
       }
       stage ('Run') {
-         docker.image("localhost:5000/discovery-service:${env.version}").run('-p 8761:8761 -h discovery --name discovery')
+         docker.image("localhost:5000/spring-boot-package-war:${env.version}").run('-p 8761:8761 -h discovery --name discovery')
       }
       stage ('Final') {
-         build job: 'account-service-pipeline', wait: false
+         //build job: 'do-stuff-with-container-pipeline', wait: false
       }      
    }
 }
