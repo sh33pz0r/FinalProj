@@ -1,7 +1,8 @@
 node("master") {
       stage('Checkout') {
  	 notifySlack()
-	 checkout([$class: 'GitSCM', branches: [[name: "ofir"]], doGenerateSubmoduleConfigurations: true, userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples.git"]]])	
+	 git([url: 'https://github.com/ofirgut007/spring-boot-examples.git', branch: 'ofir')
+	 //checkout([$class: 'GitSCM', branches: [[name: "ofir"]], doGenerateSubmoduleConfigurations: true, userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples.git"]]])	
          sh "echo pwd"
       }
    withMaven(maven:'m1') {
