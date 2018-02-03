@@ -13,8 +13,8 @@ node("master") {
             env.version = pom.version
 	    def workspacePath = pwd()
 	    sh "echo ${env.version} > ${workspacePath}/envversion.txt"
-	    mvn versions:set versions:commit -DnewVersion="0.0.25"
-	    mvn scm:checkin -Dincludes=pom.xml -Dmessage="Setting version, preping for release."
+	    //mvn versions:set versions:commit -DnewVersion="0.0.25"
+	    //mvn scm:checkin -Dincludes=pom.xml -Dmessage="Setting version, preping for release."
 	 } catch (exc) {
 	    error "ERROR: Failed to package maven"
 	 }
