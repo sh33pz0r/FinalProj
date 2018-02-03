@@ -1,33 +1,59 @@
-tools { 
-        maven 'Maven 3.3.9' 
-        jdk 'jdk8' 
+pipeline {
+  environment {
+    M3_HOME = "/usr/share/maven"
+    M2_HOME = "/usr/share/maven"
+  }
+  agent none
+  tools {
+      maven 'Maven 3.3.9'
+      jdk 'jdk8'
+  }
+  stages {
+    // stage('Send Slack Notifcation') {
+    //     steps {
+    //         slackSend (color: '#FFFF00', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    //     }
+    // }
+    stage("docker") {
+        agent docker: "maven:3.3.9-jdk-8"
+
+            steps {
+                checkout scm
+                sh "mvn clean ${env.MAVEN_GOAL} -B -Dmaven.test.failure.ignore=true"
+            }
+
+            post {
+                success {
+                    archive "**/target/**/*.jar"
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
     }
-
-	properties([
-        disableConcurrentBuilds(),
-        parameters([
-                string(defaultValue: '', description: '', name: 'my_branch'),
-        ]),
-        pipelineTriggers([])
-])
-
-node("master") {
-	stage('Check-out') {
-            checkout([$class: 'GitSCM', branches: [[name: "master"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
-	}
-
-    stage('Build') {
-        try {
-            sh 'mvn -Dmaven.test.failure.ignore=true install' 
-	} catch (exc) {
-	    error "ERROR: Failed to checkout branch - ${params.my_branch}"
-	}
+    stage('verify') {
+      steps {
+          dir("spring-boot-package-war"){
+                sh 'mvn clean verify'
+          }
+      }
     }
-	stage ('test') {
-			junit 'target/surefire-reports/**/*.xml' 
-	}
-    stage('Deploy') {
-        
-
+    stage ('Build') {
+        steps {
+            sh 'mvn install'
+        }
+        post {
+            success {
+                junit 'target/surefire-reports/**/*.xml'
+            }
+        }
     }
+  }
+//   post {
+//     success {
+//       slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+//     }
+
+//     failure {
+//       slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+//     }
+//   }
 }
