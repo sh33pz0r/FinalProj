@@ -45,6 +45,8 @@ node("master") {
          //build job: 'do-stuff-with-container-pipeline', wait: false
 	 notifySlack(currentBuild.result)
       }
+   }
+}
       def deploymentOk(){
          def workspacePath = pwd()
          expectedCommitid = new File("${workspacePath}/envversion.txt").text.trim()
@@ -74,6 +76,3 @@ node("master") {
 
 	    slackSend(color: color, message: msg)
       }
-
-   }
-}
