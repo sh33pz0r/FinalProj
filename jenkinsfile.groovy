@@ -1,7 +1,8 @@
 node("master") {
    withMaven(maven:'m1') {
       stage('Checkout') {
-         checkout([$class: 'GitSCM', branches: [[name: "ofir"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
+ 	 notifySlack()
+	 checkout([$class: 'GitSCM', branches: [[name: "ofir"]], doGenerateSubmoduleConfigurations: true, extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: "/home/ec2-user/WORKSPACE/"]], submoduleCfg: [], userRemoteConfigs: [[url: "git remote add origin https://github.com/ofirgut007/spring-boot-examples"]]])	
       }
       stage('Build') {
          dir('spring-boot-package-war'){
@@ -42,6 +43,7 @@ node("master") {
 
       stage ('Final') {
          //build job: 'do-stuff-with-container-pipeline', wait: false
+	 notifySlack(currentBuild.result)
       }
       def deploymentOk(){
          def workspacePath = pwd()
@@ -51,7 +53,27 @@ node("master") {
          //println "actual version from json: ${actualCommitid}"
          //return expectedCommitid == actualCommitid
 	 return 1
-}
+      }
+      def notifySlack(String buildStatus = 'STARTED') {
+	    // Build status of null means success.
+	    buildStatus = buildStatus ?: 'SUCCESS'
+
+	    def color
+
+	    if (buildStatus == 'STARTED') {
+		color = '#D4DADF'
+	    } else if (buildStatus == 'SUCCESS') {
+		color = '#BDFFC3'
+	    } else if (buildStatus == 'UNSTABLE') {
+		color = '#FFFE89'
+	    } else {
+		color = '#FF9FA1'
+	    }
+
+	    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+
+	    slackSend(color: color, message: msg)
+      }
 
    }
 }
